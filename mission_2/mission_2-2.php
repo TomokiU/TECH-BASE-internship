@@ -1,0 +1,21 @@
+<?php
+	$word = $_POST["comment"]; //get comment
+	$filename = "mission_2-2.txt"; 
+	if ($word == null){
+		echo "何も入力されていません。";
+		$fp = fopen($filename, "w"); 
+		fwrite($fp, "");
+		fclose($fp);
+	} elseif ($word == "完成！"){
+		echo "[" . $word . "] を受け付けました。<br>おめでとう！"; //output
+		
+		$fp = fopen($filename, "w"); //save comment as a text file
+		fwrite($fp, $word);
+		fclose($fp);
+	} else {
+		echo "[" . $word . "] を受け付けました。"; //output
+		$fp = fopen($filename, "w"); //save comment as a text file
+		fwrite($fp, $word);
+		fclose($fp);
+	}
+?>
