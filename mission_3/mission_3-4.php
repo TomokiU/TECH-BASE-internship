@@ -3,7 +3,7 @@
 	<body>
 	
 	<?php
-		$filename = "mission_3-3.txt"; 
+		$filename = "mission_3-4.txt"; 
 		if (file_exists($filename)){
 			$file =file($filename);
 			$comnum =count($file) + 1;
@@ -12,7 +12,6 @@
 		}
 	?>
 	
-	
 		<form method="post">
 			<input type="text" name="name" size="" value="名前を入れてね"> <br>
 			<input type="text" name="comment" size="" value="コメントしてちょ"> <br>
@@ -20,9 +19,16 @@
 		</form>
 		
 		<form method="post">
-			<input type="number" name="ID" size="" value="0" min=0 max=<?php echo $comnum; ?> > <br>
+			<input type="number" name="ID" size="" value="0" min=0 max= <?php echo $comnum; ?> ><br>
 			<input type = "submit" name = "delete" value ="Delete">
 		</form>
+		
+
+		<form method="post">
+			<input type="number" name="ID" size="" value="0" min=0 max=<?php echo $comnum; ?> > <br>
+			<input type = "submit" name = "edit" value ="Edit">
+		</form>
+
 
 
 
