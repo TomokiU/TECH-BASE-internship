@@ -2,6 +2,10 @@
 ////削除するときの最大値を設定
 ////ID番号を取得し直すか？	
 	$filename = "mission_3-3.txt"; 
+	if (file_exists($filename)){
+			$file =file($filename);
+			$comnum =count($file);
+	}
 	
 	
 	//Processing of submit
@@ -50,7 +54,7 @@
 		$ID = $_POST["ID"]; //get ID which need to be deleted
 		if ($ID == 0){
 			echo "正しい番号を選んでください";
-		} elseif ($ID > 100){ ///////////////////////////////ここ！！！！
+		} elseif ($ID > $comnum){ 
 			echo "えらーだぴょん";
 		} else { 
 			if (file_exists($filename)){ // if file exist
