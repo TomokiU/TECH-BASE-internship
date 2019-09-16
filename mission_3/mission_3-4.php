@@ -3,44 +3,28 @@
 	<body>
 	
 	<?php
+		//get previous post number
 		$filename = "mission_3-4.txt"; 
 		if (file_exists($filename)){
 			$file =file($filename);
 			$comnum =count($file) + 1;
 		} else {
-			$comnum = 0;
+			$comnum = 1;
 		}
+		
+		//form input
+		$formname = "氏名";
+		$formcomment = "コメント";
+		
 	?>
-	
-		<form method="post">
-			<input type="text" name="name" size="" value="名前を入れてね"> <br>
-			<input type="text" name="comment" size="" value="コメントしてちょ"> <br>
-			<input type = "submit" name = "add" value ="Submit">
-		</form>
-		
-		<form method="post">
-			<input type="number" name="ID" size="" value="0" min=0 max= <?php echo $comnum; ?> ><br>
-			<input type = "submit" name = "delete" value ="Delete">
-		</form>
-		
-
-		<form method="post">
-			<input type="number" name="ID" size="" value="0" min=0 max=<?php echo $comnum; ?> > <br>
-			<input type = "submit" name = "edit" value ="Edit">
-		</form>
-
-
 
 
 <?php
-
-	
-	
-	//Processing of submit
+//Processing of submit
 	if (isset($_POST["add"])){
-		$name = $_POST["name"];
+		$name = $_POST["name"]; //get name
 		$word = $_POST["comment"]; //get comment
-		$time = date("Y/m/d H:i:s");
+		$time = date("Y/m/d H:i:s"); //get date
 
 		//Count array
 		if (file_exists($filename)){
@@ -51,7 +35,7 @@
 		}
 		
 		
-		//Display
+		//Display input text
 		echo ($name . "さん<br>" );
 		if ($word == null){
 			echo "何も入力されていません。<br>";
@@ -66,7 +50,105 @@
 		$fp = fopen($filename, "a"); 
 		fwrite($fp, $moji . PHP_EOL);
 		fclose($fp);
-		
+	}
+	
+//Processing of delete
+	if (isset($_POST["delete"])){
+		$ID = $_POST["delID"]; //get ID which need to be deleted
+			if (file_exists($filename)){ // if file exists
+				$commentarray =file($filename); //get previous post
+				
+				$fp = fopen($filename, "w"); //format text fille
+							fwrite($fp, "");
+							fclose($fp);
+				echo "ID " . $ID . "を削除しました<br>";
+				
+				foreach ($commentarray as $ary){ // process each post
+					$exp = explode("<>", $ary); 
+					if ($exp[0] !=$ID){ //save text which are not targeted 
+						echo "<hr>";
+						$fp = fopen($filename, "a"); 
+							fwrite($fp, $ary);
+							fclose($fp);
+						foreach ($exp as $comp){ //display text
+							echo $comp . "<br/>";
+						}
+					} else {// delete text which is targeted
+						echo "<hr>";
+						$fp = fopen($filename, "a"); 
+							fwrite($fp, $exp[0] . "<>" . "Deleted". PHP_EOL);
+							fclose($fp);
+						echo $exp[0] . "<br>"; //display deleted id
+						echo "Deleted<br>"; //display result
+						}				
+					}
+			} else {// if file does not exsit
+				echo "ファイルが見つかりません";
+			} 
+	}
+	
+	
+//Processing of edit
+ 	if (isset($_POST["edit"])){
+ 		$ID = $_POST["ediID"]; //get ID which need to be deleted
+ 		if (file_exists($filename)){ // if file exists
+				$commentarray =file($filename); //get previous post
+				
+				$fp = fopen($filename, "w"); //format text fille
+							fwrite($fp, "");
+							fclose($fp);
+				echo "ID " . $ID . "を編集しました<br>";
+				
+				foreach ($commentarray as $ary){ // process each post
+					$exp = explode("<>", $ary); 
+					if ($exp[0] !=$ID){ //save text which are not targeted 
+						echo "<hr>";
+						$fp = fopen($filename, "a"); 
+							fwrite($fp, $ary);
+							fclose($fp);
+						foreach ($exp as $comp){ //display text
+							echo $comp . "<br/>";
+						}
+					} else {// delete text which is targeted
+						
+						echo "<hr>";
+						$fp = fopen($filename, "a"); 
+							fwrite($fp, $exp[0] . "<>" . "Deleted". PHP_EOL);
+							fclose($fp);
+												
+						$formname = $exp[1];
+						$formcomment = $exp[2];
+						
+						
+						}				
+					}
+			} else {// if file does not exsit
+				echo "ファイルが見つかりません";
+			} 
+
+ 	}
+
+?>
+
+	コメント
+		<form method="post">
+			<input type="text" name="name" size="" value=<?php echo $formname; ?> > <br>
+			<input type="text" name="comment" size="" value=<?php echo $formcomment; ?> > <br>
+			<input type = "submit" name = "add" value ="Submit">
+		</form>
+	削除
+		<form method="post">
+			<input type="number" name="delID" size="" value="1" min=1 max= <?php echo $comnum; ?> ><br>
+			<input type = "submit" name = "delete" value ="Delete">
+		</form>
+	編集
+		<form method="post">
+			<input type="number" name="ediID" size="" value="1" min=1 max=<?php echo $comnum; ?> > <br>
+			<input type = "submit" name = "edit" value ="Edit">
+		</form>
+
+<?php
+		//display previous posts
 		$ary = file($filename);
 		for ($i = 0; $i < $num; $i = $i + 1){
 			echo "<hr>";
@@ -75,47 +157,11 @@
 				echo $comp . "<br/>";
 			}
 		}
-	}
-	
-	//Processing of delete
-	if (isset($_POST["delete"])){
-		$ID = $_POST["ID"]; //get ID which need to be deleted
-		if ($ID == 0){
-			echo "正しい番号を選んでください";
-		} else { 
-			if (file_exists($filename)){ // if file exist
-				$commentarray =file($filename);
-				$fp = fopen($filename, "w"); //format text fille
-							fwrite($fp, "");
-							fclose($fp);
-				echo "ID " . $ID . "を削除しました<br>";
-				foreach ($commentarray as $ary){ 
-					$exp = explode("<>", $ary); 
-					if ($exp[0] !=$ID){ //save the lines which are not targeted 
-						echo "<hr>";
-						$fp = fopen($filename, "a"); 
-							fwrite($fp, $ary);
-							fclose($fp);
-						foreach ($exp as $comp){
-							echo $comp . "<br/>";
-						}
-					} else {
-						echo "<hr>";
-						$fp = fopen($filename, "a"); 
-							fwrite($fp, $exp[0] . "<>" . "削除されました". PHP_EOL);
-							fclose($fp);
-						echo $exp[0] . "<br>";
-						echo "削除されました<br>";
-						}				
-					}
-			} else {// if file does not exsit
-				echo "ファイルが見つかりません";
-			} 
-		}
-	} 
 
 ?>
 
 
 	</body>
 <html>
+
+
