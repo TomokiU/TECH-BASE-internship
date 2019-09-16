@@ -1,3 +1,4 @@
+//3-4-6
 <html>
 	<meta charset="UTF-8">
 	<body>
@@ -15,7 +16,6 @@
 		//form input
 		$formname = "氏名";
 		$formcomment = "コメント";
-		
 	?>
 
 
@@ -38,11 +38,11 @@
 		//Display input text
 		echo ($name . "さん<br>" );
 		if ($word == null){
-			echo "何も入力されていません。<br>";
+			echo "何も入力されていません。<br><br>";
 		} elseif ($word == "完成！"){
-			echo "[" . $word . "] を受け付けました。<br>おめでとう！<br>"; 
+			echo "[" . $word . "] を受け付けました。<br>おめでとう！<br><br>"; 
 		} else {
-			echo "[" . $word . "] を受け付けました。<br>"; 
+			echo "[" . $word . "] を受け付けました。<br><br>"; 
 		}
 
 		//save text file
@@ -66,20 +66,13 @@
 				foreach ($commentarray as $ary){ // process each post
 					$exp = explode("<>", $ary); 
 					if ($exp[0] !=$ID){ //save text which are not targeted 
-						echo "<hr>";
 						$fp = fopen($filename, "a"); 
 							fwrite($fp, $ary);
 							fclose($fp);
-						foreach ($exp as $comp){ //display text
-							echo $comp . "<br/>";
-						}
 					} else {// delete text which is targeted
-						echo "<hr>";
 						$fp = fopen($filename, "a"); 
 							fwrite($fp, $exp[0] . "<>" . "Deleted". PHP_EOL);
 							fclose($fp);
-						echo $exp[0] . "<br>"; //display deleted id
-						echo "Deleted<br>"; //display result
 						}				
 					}
 			} else {// if file does not exsit
@@ -93,39 +86,18 @@
  		$ID = $_POST["ediID"]; //get ID which need to be deleted
  		if (file_exists($filename)){ // if file exists
 				$commentarray =file($filename); //get previous post
-				
-				$fp = fopen($filename, "w"); //format text fille
-							fwrite($fp, "");
-							fclose($fp);
-				echo "ID " . $ID . "を編集しました<br>";
+				echo "ID " . $ID . "を読み込みました<br>";
 				
 				foreach ($commentarray as $ary){ // process each post
 					$exp = explode("<>", $ary); 
-					if ($exp[0] !=$ID){ //save text which are not targeted 
-						echo "<hr>";
-						$fp = fopen($filename, "a"); 
-							fwrite($fp, $ary);
-							fclose($fp);
-						foreach ($exp as $comp){ //display text
-							echo $comp . "<br/>";
-						}
-					} else {// delete text which is targeted
-						
-						echo "<hr>";
-						$fp = fopen($filename, "a"); 
-							fwrite($fp, $exp[0] . "<>" . "Deleted". PHP_EOL);
-							fclose($fp);
-												
-						$formname = $exp[1];
-						$formcomment = $exp[2];
-						
-						
+					if ($exp[0] ==$ID){ //get name & comment for display
+						$formname = $exp[1]; 
+						$formcomment = $exp[2]; 
 						}				
 					}
 			} else {// if file does not exsit
 				echo "ファイルが見つかりません";
 			} 
-
  	}
 
 ?>
@@ -150,16 +122,15 @@
 <?php
 		//display previous posts
 		$ary = file($filename);
-		for ($i = 0; $i < $num; $i = $i + 1){
+		foreach ($ary as $arycomp){
 			echo "<hr>";
-			$exp = explode("<>", $ary[$i]);
+			$exp = explode("<>", $arycomp);
 			foreach ($exp as $comp){
 				echo $comp . "<br/>";
 			}
 		}
 
 ?>
-
 
 	</body>
 <html>
