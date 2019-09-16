@@ -1,4 +1,3 @@
-//3-4-6
 <html>
 	<meta charset="UTF-8">
 	<body>
@@ -6,11 +5,21 @@
 	<?php
 		//get previous post number
 		$filename = "mission_3-4.txt"; 
+		$tempfile = "mission_3-4_temp.txt";
 		if (file_exists($filename)){
 			$file =file($filename);
-			$comnum =count($file) + 1;
+			$comnum =count($file)+1;
+			$judgeID = $comnum + 1;
 		} else {
 			$comnum = 1;
+			$judgeID = 1;
+		}
+		
+		//get edit number
+		if (file_exists($tempfile)){
+			$temp = file($tempfile);
+		} else {
+			$temp = 0;
 		}
 		
 		//form input
@@ -20,8 +29,44 @@
 
 
 <?php
-//Processing of submit
+
+//read id for edit
 	if (isset($_POST["add"])){
+		$judgeid = $_POST["judge"];
+	}
+	
+//Processing of submit as edit
+	if (isset($_POST["add"]) && $judgeid == $temp[0]){
+		$name = $_POST["name"]; //get name
+		$word = $_POST["comment"]; //get comment
+		$time = date("Y/m/d H:i:s"); //get date
+
+		//Count array
+		if (file_exists($filename)){
+			$commentarray =file($filename);
+		}
+		
+		$fp = fopen($filename, "w"); //format text fille
+			fwrite($fp, "");
+			fclose($fp);
+		
+		foreach ($commentarray as $ary){ // process each post
+			$exp = explode("<>", $ary); 
+			if ($exp[0] !=$temp[0]){ //save text which are not targeted 
+				$fp = fopen($filename, "a"); 
+					fwrite($fp, $ary);
+					fclose($fp);
+			} else {// delete text which is targeted
+				$fp = fopen($filename, "a"); 
+					fwrite($fp, $temp[0] . "<>" . $name . "<>" . $word . "<>" . $time . "<>" . PHP_EOL);
+					fclose($fp);
+			}				
+		}
+	}
+	
+	
+//Processing of submit
+	if (isset($_POST["add"]) && $judgeid != $temp[0]){
 		$name = $_POST["name"]; //get name
 		$word = $_POST["comment"]; //get comment
 		$time = date("Y/m/d H:i:s"); //get date
@@ -48,9 +93,10 @@
 		//save text file
 		$moji = ($num . "<>" . $name . "<>" . $word . "<>" . $time);
 		$fp = fopen($filename, "a"); 
-		fwrite($fp, $moji . PHP_EOL);
-		fclose($fp);
+			fwrite($fp, $moji . PHP_EOL);
+			fclose($fp);
 	}
+
 	
 //Processing of delete
 	if (isset($_POST["delete"])){
@@ -58,9 +104,7 @@
 			if (file_exists($filename)){ // if file exists
 				$commentarray =file($filename); //get previous post
 				
-				$fp = fopen($filename, "w"); //format text fille
-							fwrite($fp, "");
-							fclose($fp);
+				unlink($filename); //format text fille
 				echo "ID " . $ID . "を削除しました<br>";
 				
 				foreach ($commentarray as $ary){ // process each post
@@ -71,7 +115,7 @@
 							fclose($fp);
 					} else {// delete text which is targeted
 						$fp = fopen($filename, "a"); 
-							fwrite($fp, $exp[0] . "<>" . "Deleted". PHP_EOL);
+							fwrite($fp, $exp[0] . "<>unknown<>deleted<>".$exp[3]);
 							fclose($fp);
 						}				
 					}
@@ -86,13 +130,18 @@
  		$ID = $_POST["ediID"]; //get ID which need to be deleted
  		if (file_exists($filename)){ // if file exists
 				$commentarray =file($filename); //get previous post
-				echo "ID " . $ID . "を読み込みました<br>";
+				echo "ID " . $ID . "を読み込みました。編集してください。<br>";
 				
 				foreach ($commentarray as $ary){ // process each post
 					$exp = explode("<>", $ary); 
 					if ($exp[0] ==$ID){ //get name & comment for display
+						$judgeID = $exp[0]; 
 						$formname = $exp[1]; 
-						$formcomment = $exp[2]; 
+						$formcomment = $exp[2];
+						
+						$fp = fopen($tempfile, "w"); //make judgeID file
+							fwrite($fp, $judgeID);
+							fclose($fp);
 						}				
 					}
 			} else {// if file does not exsit
@@ -102,10 +151,11 @@
 
 ?>
 
-	コメント
+		コメント
 		<form method="post">
 			<input type="text" name="name" size="" value=<?php echo $formname; ?> > <br>
 			<input type="text" name="comment" size="" value=<?php echo $formcomment; ?> > <br>
+			<input type="hidden" name="judge" size="" value=<?php echo $judgeID; ?> ><br>
 			<input type = "submit" name = "add" value ="Submit">
 		</form>
 	削除
@@ -119,8 +169,11 @@
 			<input type = "submit" name = "edit" value ="Edit">
 		</form>
 
+
+
 <?php
-		//display previous posts
+//display posts
+	if (file_exists($filename)){
 		$ary = file($filename);
 		foreach ($ary as $arycomp){
 			echo "<hr>";
@@ -129,6 +182,7 @@
 				echo $comp . "<br/>";
 			}
 		}
+	}
 
 ?>
 
