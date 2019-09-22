@@ -183,8 +183,8 @@
 		foreach ($ary as $arycomp){
 			echo "<hr>";
 			$exp = explode("<>", $arycomp);
-			foreach ($exp as $comp){
-				echo $comp . "<br/>";
+			for ($i = 1; $i < 4; $i++){
+				echo $exp[$i] . "<br/>";
 			}
 		}
 	}
