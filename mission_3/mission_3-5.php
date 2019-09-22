@@ -23,8 +23,9 @@
 		}
 		
 		//form input
-		$formname = "氏名";
-		$formcomment = "コメント";
+		$formname = "name";
+		$formcomment = "comment";
+		$formpass="password";
 	?>
 
 
@@ -41,6 +42,7 @@
 		$word = $_POST["comment"]; //get comment
 		$time = date("Y/m/d H:i:s"); //get date
 		$pass = $_POST["password"]; //get password
+		echo "編集しました";
 
 		//Count array
 		if (file_exists($filename)){
@@ -103,24 +105,36 @@
 //Processing of delete
 	if (isset($_POST["delete"])){
 		$ID = $_POST["delID"]; //get ID which need to be deleted
+		$delpass = $_POST["delpass"]; //get password for delete
 			if (file_exists($filename)){ // if file exists
 				$commentarray =file($filename); //get previous post
 				
-				unlink($filename); //format text fille
-				echo "ID " . $ID . "を削除しました<br>";
-				
 				foreach ($commentarray as $ary){ // process each post
 					$exp = explode("<>", $ary); 
-					if ($exp[0] !=$ID){ //save text which are not targeted 
-						$fp = fopen($filename, "a"); 
-							fwrite($fp, $ary);
-							fclose($fp);
-					} else {// delete text which is targeted
-						$fp = fopen($filename, "a"); 
-							fwrite($fp, $exp[0] . "<>unknown<>deleted<>".$exp[3]);
-							fclose($fp);
-						}				
+					if ($exp[0] ==$ID){ 
+						if ($exp[4] !=$delpass){//Judge password
+							echo "passwordが一致しません";
+						} else{
+							unlink($filename); //format text fille
+							echo "ID " . $ID . "を削除しました<br>";
+				
+							foreach ($commentarray as $ary){ // process each post
+								$exp = explode("<>", $ary); 
+								if ($exp[0] !=$ID){ //save text which are not targeted 
+									$fp = fopen($filename, "a"); 
+										fwrite($fp, $ary);
+										fclose($fp);
+								} else {// delete text which is targeted
+									$fp = fopen($filename, "a"); 
+										fwrite($fp, $exp[0] . "<>unknown<>deleted<>".$exp[3]."<>".$exp[4]."<>".PHP_EOL);
+										fclose($fp);
+								}				
+							}
+						}
 					}
+				}
+				
+				
 			} else {// if file does not exsit
 				echo "ファイルが見つかりません";
 			} 
@@ -130,22 +144,32 @@
 //Processing of edit
  	if (isset($_POST["edit"])){
  		$ID = $_POST["ediID"]; //get ID which need to be deleted
+ 		$edipass = $_POST["edipass"]; //get password for delete
  		if (file_exists($filename)){ // if file exists
 				$commentarray =file($filename); //get previous post
 				echo "ID " . $ID . "を読み込みました。編集してください。<br>";
 				
 				foreach ($commentarray as $ary){ // process each post
 					$exp = explode("<>", $ary); 
-					if ($exp[0] ==$ID){ //get name & comment for display
-						$judgeID = $exp[0]; 
-						$formname = $exp[1]; 
-						$formcomment = $exp[2];
-						
-						$fp = fopen($tempfile, "w"); //make judgeID file
-							fwrite($fp, $judgeID);
-							fclose($fp);
-						}				
+					if ($exp[0] ==$ID){ 
+						if ($exp[4] !=$edipass){//Judge password
+							echo "passwordが一致しません";
+						} else{
+							foreach ($commentarray as $ary){ // process each post
+								$exp = explode("<>", $ary); 
+								if ($exp[0] ==$ID){ //get name & comment for display
+									$judgeID = $exp[0]; 
+									$formname = $exp[1]; 
+									$formcomment = $exp[2];
+									
+									$fp = fopen($tempfile, "w"); //make judgeID file
+										fwrite($fp, $judgeID);
+										fclose($fp);
+									}				
+								}
+						}
 					}
+				}
 			} else {// if file does not exsit
 				echo "ファイルが見つかりません";
 			} 
@@ -153,24 +177,24 @@
 
 ?>
 
-		コメント
+		<!-- コメント -->
 		<form method="post">
 			<input type="text" name="name" size="" value=<?php echo $formname; ?> > <br>
 			<input type="text" name="comment" size="" value=<?php echo $formcomment; ?> > <br>
-			<input type="text" name="password" size="" value="パスワード"> <br>
+			<input type="text" name="password" size="" value=<?php echo $formpass; ?> > <br>
 			<input type="hidden" name="judge" size="" value=<?php echo $judgeID; ?> ><br>
 			<input type = "submit" name = "add" value ="Submit">
 		</form>
-	削除
+	<!-- 削除 -->
 		<form method="post">
 			<input type="number" name="delID" size="" value="1" min=1 max= <?php echo $comnum; ?> ><br>
-			<input type="text" name="delpass" size="" value="パスワード"> <br>
+			<input type="text" name="delpass" size="" value=<?php echo $formpass; ?> > <br>
 			<input type = "submit" name = "delete" value ="Delete">
 		</form>
-	編集
+	<!-- 編集 -->
 		<form method="post">
 			<input type="number" name="ediID" size="" value="1" min=1 max=<?php echo $comnum; ?> > <br>
-			<input type="text" name="edipass" size="" value="パスワード"> <br>
+			<input type="text" name="edipass" size="" value=<?php echo $formpass; ?> > <br>
 			<input type = "submit" name = "edit" value ="Edit">
 		</form>
 
@@ -183,7 +207,7 @@
 		foreach ($ary as $arycomp){
 			echo "<hr>";
 			$exp = explode("<>", $arycomp);
-			for ($i = 1; $i < 4; $i++){
+			for ($i = 0; $i < 4; $i++){
 				echo $exp[$i] . "<br/>";
 			}
 		}
